@@ -1,5 +1,6 @@
 import ipaddress
 import subprocess
+import socket
 
 # # 192.168.56.1/24
 # # create addresses:
@@ -43,3 +44,29 @@ for i in subnet_string.hosts():
 print(live_hosts)
 
 ports = [21, 22, 23, 25, 53, 80, 110, 443, 3389, 8080]
+
+
+def scan_port(ip, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+
+    try:
+        sock_result = sock.connect_ex((ip, port))
+        if sock_result == 0:
+            return "Open Port"
+        return "Closed Port"
+
+    except socket.timeout:
+        return "Filtered Port"
+
+    finally:
+        sock.close()
+
+
+print(scan_port("10.232.8.29", 80))
+
+
+for hosts in live_hosts:
+    for port in ports:
+        result = scan_port(str(hosts), port)
+        print(str(port) + " is " + result + " for " + str(hosts))
